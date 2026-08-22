@@ -7,10 +7,10 @@
   <style>
     * {
       box-sizing: border-box;
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     body {
-      background-color: #f4f6f9;
+      background-color: #eef2f5;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,70 +22,76 @@
       background: #ffffff;
       width: 100%;
       max-width: 400px;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
       text-align: center;
     }
     .cover-art {
-      width: 120px;
-      height: 120px;
-      background: #007bff;
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #007bff, #0056b3);
       color: white;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 48px;
+      font-size: 40px;
       margin: 0 auto 15px auto;
+      box-shadow: 0 4px 10px rgba(0,123,255,0.3);
     }
     h3 {
       margin: 10px 0 5px 0;
       font-size: 18px;
-      color: #333;
+      color: #2c3e50;
     }
     p {
-      margin: 0 0 15px 0;
-      color: #666;
+      margin: 0 0 20px 0;
+      color: #7f8c8d;
       font-size: 14px;
     }
     .controls {
       display: flex;
       justify-content: center;
+      align-items: center;
       gap: 15px;
       margin-bottom: 20px;
     }
     button {
-      padding: 10px 18px;
-      font-size: 16px;
+      padding: 12px 20px;
+      font-size: 18px;
       border: none;
       background: #007bff;
       color: white;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background 0.2s;
     }
     button:active {
       background: #0056b3;
     }
     .playlist-container {
       text-align: left;
-      border-top: 1px solid #eee;
+      border-top: 1px solid #edf2f7;
       padding-top: 15px;
-      max-height: 200px;
+      max-height: 220px;
       overflow-y: auto;
     }
     .playlist-item {
-      padding: 10px;
-      border-radius: 5px;
+      padding: 12px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
-      margin-bottom: 5px;
-      background: #f8f9fa;
+      margin-bottom: 6px;
+      background: #f8fafc;
+      color: #334155;
+      transition: all 0.2s;
     }
     .playlist-item.active {
-      background: #e3f2fd;
-      color: #007bff;
+      background: #e0f2fe;
+      color: #0284c7;
       font-weight: bold;
+      border-left: 4px solid #0284c7;
     }
   </style>
 </head>
@@ -112,41 +118,34 @@
   const musicFolder = "https://beita.smpn9sinjai.sch.id/music/";
 
   const songs = [
-    {
-      judul: "Kita Bersahabat",
-      artis: "Music",
-      file: musicFolder + "Kita Bersahabat.mp3"
-    },
-    {
-      judul: "Maafkan Saya Pak Guru Ibu Guru",
-      artis: "Music",
-      file: musicFolder + "Maafkan Saya Pak Guru Ibu Guru.mp3"
-    },
-    {
-      judul: "Menasehati Siswa",
-      artis: "Music",
-      file: musicFolder + "Menasehati Siswa.mp3"
-    },
-    {
-      judul: "Orang Tua Kedua",
-      artis: "Music",
-      file: musicFolder + "Orang Tua Kedua.mp3"
-    },
-    {
-      judul: "Sampai Jumpa, Kawan",
-      artis: "Music",
-      file: musicFolder + "Sampai Jumpa, Kawan.mp3"
-    }
+    { judul: "Kita Bersahabat", artis: "Music", file: musicFolder + "Kita Bersahabat.mp3" },
+    { judul: "Maafkan Saya Pak Guru Ibu Guru", artis: "Music", file: musicFolder + "Maafkan Saya Pak Guru Ibu Guru.mp3" },
+    { judul: "Menasehati Siswa", artis: "Music", file: musicFolder + "Menasehati Siswa.mp3" },
+    { judul: "Orang Tua Kedua", artis: "Music", file: musicFolder + "Orang Tua Kedua.mp3" },
+    { judul: "Sampai Jumpa, Kawan", artis: "Music", file: musicFolder + "Sampai Jumpa, Kawan.mp3" }
   ];
 
   /* =====================================================
-     LOGIKA PEMUTAR AUDIO & MEDIA SESSION
+     INISIALISASI PLAYER & STATE MANAGEMENT
   ===================================================== */
   let currentIndex = 0;
   const audio = new Audio();
+  audio.preload = "auto";
   let isPlaying = false;
+  let wakeLock = null;
 
-  // Inisialisasi Tampilan Playlist di HTML
+  // Fungsi mencegah CPU HP tidur (Wake Lock API)
+  async function requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLock = await navigator.wakeLock.request('screen');
+      }
+    } catch (err) {
+      console.log("WakeLock Error:", err.message);
+    }
+  }
+
+  // Render Daftar Playlist di Tampilan
   const playlistUI = document.getElementById('playlist-ui');
   songs.forEach((song, index) => {
     const item = document.createElement('div');
@@ -156,21 +155,27 @@
     playlistUI.appendChild(item);
   });
 
-  // Load & Pemutaran Lagu
+  /* =====================================================
+     FUNGSI KONTROL AUDIO
+  ===================================================== */
   function loadAndPlay(index) {
     if (index < 0 || index >= songs.length) return;
     
     currentIndex = index;
     const currentSong = songs[currentIndex];
 
+    // Reset total audio buffer sebelum memuat lagu baru
+    audio.pause();
+    audio.currentTime = 0;
     audio.src = currentSong.file;
+    audio.load();
+
     audio.play().then(() => {
       isPlaying = true;
       updateUI();
       setupMediaSession(currentSong);
-    }).catch(err => {
-      console.error("Gagal memutar audio:", err);
-    });
+      requestWakeLock();
+    }).catch(err => console.error("Gagal memutar audio:", err));
   }
 
   function togglePlay() {
@@ -185,6 +190,7 @@
     } else {
       audio.play();
       isPlaying = true;
+      requestWakeLock();
     }
     updateUI();
   }
@@ -198,7 +204,6 @@
     loadAndPlay(currentIndex);
   }
 
-  // Update Tampilan Tombol & Highlight Playlist
   function updateUI() {
     const currentSong = songs[currentIndex];
     document.getElementById('song-title').innerText = currentSong.judul;
@@ -207,15 +212,13 @@
 
     const items = playlistUI.getElementsByClassName('playlist-item');
     Array.from(items).forEach((item, idx) => {
-      if (idx === currentIndex) {
-        item.classList.add('active');
-      } else {
-        item.classList.remove('active');
-      }
+      item.classList.toggle('active', idx === currentIndex);
     });
   }
 
-  // INTEGRASI MEDIA SESSION (Kunci Utama Lockscreen & Background Sleep)
+  /* =====================================================
+     MEDIA SESSION (LOCKSCREEN CONTROL & BACKSTAGE KEEP-ALIVE)
+  ===================================================== */
   function setupMediaSession(song) {
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
@@ -227,7 +230,6 @@
         ]
       });
 
-      // Pendaftaran Event Tombol di Lockscreen HP
       navigator.mediaSession.setActionHandler('play', () => {
         audio.play();
         isPlaying = true;
@@ -243,11 +245,13 @@
     }
   }
 
-  // OTOMATIS LANJUT KE LAGU BERIKUTNYA SAAT LAYAR MATI / SLEEP
+  /* =====================================================
+     EVENT LISTENER OTOMATISASI LAGU SELANJUTNYA
+  ===================================================== */
   audio.addEventListener('ended', () => {
     changeTrack('next');
   });
 </script>
 
 </body>
-</html>
+</html>        
