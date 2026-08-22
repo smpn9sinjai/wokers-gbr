@@ -36,8 +36,8 @@
     /* Vinyl / Disc DJ Styling */
     .disc-container {
       position: relative;
-      width: 180px;
-      height: 180px;
+      width: 110px;
+      height: 110px;
       margin: 0 auto 20px auto;
     }
     .vinyl-disc {
@@ -57,8 +57,8 @@
       animation-play-state: running;
     }
     .vinyl-center {
-      width: 50px;
-      height: 50px;
+      width: 100px;
+      height: 100px;
       background: linear-gradient(45deg, #00f2fe, #fe00f2);
       border-radius: 50%;
       border: 5px solid #000;
@@ -127,10 +127,10 @@
       background: #232738;
       border: none;
       color: #fff;
-      width: 45px;
-      height: 45px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
       transition: 0.2s;
     }
@@ -139,10 +139,10 @@
       color: #00f2fe;
     }
     .btn-play {
-      width: 60px;
-      height: 60px;
+      width: 40px;
+      height: 40px;
       background: linear-gradient(45deg, #00f2fe, #fe00f2);
-      font-size: 22px;
+      font-size: 18px;
       box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
     }
 
@@ -153,10 +153,12 @@
       justify-content: center;
       gap: 10px;
       margin-bottom: 20px;
-      font-size: 12px;
+      font-size: 10px;
       color: #a0aec0;
     }
     .volume-container input[type="range"] {
+	    height: 6px;
+      width: 30%;
       accent-color: #00f2fe;
       cursor: pointer;
     }
@@ -171,7 +173,7 @@
       justify-content: space-between;
     }
     .playlist {
-      max-height: 160px;
+      max-height: 230px;
       overflow-y: auto;
       text-align: left;
       padding-right: 5px;
@@ -218,14 +220,20 @@
   <div class="disc-container">
     <div class="vinyl-disc" id="vinyl">
       <div class="vinyl-center">
-        <i class="fa-solid fa-compact-disc"></i>
+        <i class="fa-solid fa-compact-disc" style="font-size:50px;"></i>
       </div>
     </div>
   </div>
 
   <!-- Info Lagu -->
-  <div class="song-title" id="title">Memuat...</div>
-  <div class="song-artist" id="artist">SMPN 9 Sinjai</div>
+  <div class="song-title" id="title" style="margin-bottom:10px;">Memuat...</div>
+  <div class="song-artist" id="artist" style="display:none" >SMPN 9 Sinjai</div>
+  <!-- Volume -->
+  <div class="volume-container" style="display:none">
+    <i class="fa-solid fa-volume-low"></i>
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8" oninput="changeVolume(this.value)">
+    <i class="fa-solid fa-volume-high"></i>
+  </div>
 
   <!-- Progress Bar -->
   <div class="progress-area">
@@ -245,12 +253,7 @@
     <button class="btn-control" onclick="nextTrack()"><i class="fa-solid fa-forward-step"></i></button>
   </div>
 
-  <!-- Volume -->
-  <div class="volume-container">
-    <i class="fa-solid fa-volume-low"></i>
-    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8" oninput="changeVolume(this.value)">
-    <i class="fa-solid fa-volume-high"></i>
-  </div>
+  
 
   <!-- Playlist UI -->
   <div class="playlist-title">
@@ -267,11 +270,23 @@
   const musicFolder = "https://beita.smpn9sinjai.sch.id/music/";
 
   let rawSongs = [
-    { judul: "Kita Bersahabat", artis: "Music DJ", file: musicFolder + "Kita Bersahabat.mp3" },
-    { judul: "Maafkan Saya Pak Guru Ibu Guru", artis: "Music DJ", file: musicFolder + "Maafkan Saya Pak Guru Ibu Guru.mp3" },
-    { judul: "Menasehati Siswa", artis: "Music DJ", file: musicFolder + "Menasehati Siswa.mp3" },
-    { judul: "Orang Tua Kedua", artis: "Music DJ", file: musicFolder + "Orang Tua Kedua.mp3" },
-    { judul: "Sampai Jumpa, Kawan", artis: "Music DJ", file: musicFolder + "Sampai Jumpa, Kawan.mp3" }
+    { judul: "Kita Bersahabat", artis: "Music", file: musicFolder + "Kita Bersahabat.mp3" },
+{ judul: "Maafkan Saya Pak Guru Ibu Guru", artis: "Music", file: musicFolder + "Maafkan Saya Pak Guru Ibu Guru.mp3" },
+{ judul: "Menasehati Siswa", artis: "Music", file: musicFolder + "Menasehati Siswa.mp3" },
+{ judul: "Orang Tua Kedua", artis: "Music", file: musicFolder + "Orang Tua Kedua.mp3" },
+{ judul: "Sampai Jumpa, Kawan", artis: "Music", file: musicFolder + "Sampai Jumpa, Kawan.mp3" },
+{ judul: "Bugis Bounce", artis: "Music", file: musicFolder + "Bugis Bounce.mp3" },
+{ judul: "Jangan Patah Hati Ya Nak", artis: "Music", file: musicFolder + "Jangan Patah Hati Ya Nak.mp3" },
+{ judul: "Kisah Kita", artis: "Music", file: musicFolder + "Kisah Kita.mp3" },
+{ judul: "Jangan Datang Terlambat, Ya Nak", artis: "Music", file: musicFolder + "Jangan Datang Terlambat, Ya Nak.mp3" },
+{ judul: "Semangat Pagi", artis: "Music", file: musicFolder + "Semangat Pagi.mp3" },
+{ judul: "Jaga Kebersihan", artis: "Music", file: musicFolder + "Jaga Kebersihan.mp3" },
+{ judul: "Anging Rindu", artis: "Music", file: musicFolder + "Anging Rindu.mp3" },
+{ judul: "Bangkit Tanpa Menyerah", artis: "Music", file: musicFolder + "Bangkit Tanpa Menyerah.mp3" },
+{ judul: "Bottingé Mappalettu", artis: "Music", file: musicFolder + "Bottingé Mappalettu'.mp3" },
+{ judul: "Bunga Yang Tak Mudah Disapa", artis: "Music", file: musicFolder + "Bunga Yang Tak Mudah Disapa.mp3" },
+{ judul: "Kembali Pada-Mu", artis: "Music", file: musicFolder + "Kembali Pada-Mu.mp3" },
+{ judul: "Rindu di Bawah Cahaya Bulan", artis: "Music", file: musicFolder + "Rindu di Bawah Cahaya Bulan.mp3" }
   ];
 
   // Acak lagu setiap kali refresh halaman
@@ -433,8 +448,8 @@
       navigator.mediaSession.metadata = new MediaMetadata({
         title: song.judul,
         artist: song.artis,
-        album: "DJ Night - SMPN 9 Sinjai",
-        artwork: [{ src: 'https://beita.smpn9sinjai.sch.id/favicon.ico', sizes: '96x96', type: 'image/x-icon' }]
+        album: "SMPN 9 Sinjai",
+        artwork: [{ src: 'https://smpn9sinjai.sch.id/favicon.ico', sizes: '96x96', type: 'image/x-icon' }]
       });
 
       navigator.mediaSession.setActionHandler('play', () => { audio.play(); isPlaying = true; updateUI(); });
@@ -445,7 +460,13 @@
   }
 
   audio.addEventListener('ended', nextTrack);
+  
+  // Listener agar Wake Lock aktif kembali saat tab fokus lagi
+document.addEventListener('visibilitychange', async () => {
+  if (wakeLock !== null && document.visibilityState === 'visible' && isPlaying) {
+    await requestWakeLock();
+  }
+});
 </script>
-
-</body>
+ </body>
 </html>
