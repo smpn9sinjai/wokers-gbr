@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pemutar Musik SMPN 9 Sinjai</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 15px;
+    }
+    .player-card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .cover-art {
+      width: 120px;
+      height: 120px;
+      background: #007bff;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      margin: 0 auto 15px auto;
+    }
+    h3 {
+      margin: 10px 0 5px 0;
+      font-size: 18px;
+      color: #333;
+    }
+    p {
+      margin: 0 0 15px 0;
+      color: #666;
+      font-size: 14px;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 18px;
+      font-size: 16px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:active {
+      background: #0056b3;
+    }
+    .playlist-container {
+      text-align: left;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .playlist-item {
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 5px;
+      background: #f8f9fa;
+    }
+    .playlist-item.active {
+      background: #e3f2fd;
+      color: #007bff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="player-card">
+  <div class="cover-art">🎵</div>
+  <h3 id="song-title">Pilih Lagu</h3>
+  <p id="song-artist">SMPN 9 Sinjai</p>
+
+  <div class="controls">
+    <button onclick="changeTrack('prev')">⏮️</button>
+    <button id="btn-play" onclick="togglePlay()">▶️</button>
+    <button onclick="changeTrack('next')">⏭️</button>
+  </div>
+
+  <div class="playlist-container" id="playlist-ui"></div>
+</div>
+
+<script>
+  /* =====================================================
+     DATA PLAYLIST
+  ===================================================== */
+  const musicFolder = "https://beita.smpn9sinjai.sch.id/music/";
+
+  const songs = [
+    {
+      judul: "Kita Bersahabat",
+      artis: "Music",
+      file: musicFolder + "Kita Bersahabat.mp3"
+    },
+    {
+      judul: "Maafkan Saya Pak Guru Ibu Guru",
+      artis: "Music",
+      file: musicFolder + "Maafkan Saya Pak Guru Ibu Guru.mp3"
+    },
+    {
+      judul: "Menasehati Siswa",
+      artis: "Music",
+      file: musicFolder + "Menasehati Siswa.mp3"
+    },
+    {
+      judul: "Orang Tua Kedua",
+      artis: "Music",
+      file: musicFolder + "Orang Tua Kedua.mp3"
+    },
+    {
+      judul: "Sampai Jumpa, Kawan",
+      artis: "Music",
+      file: musicFolder + "Sampai Jumpa, Kawan.mp3"
+    }
+  ];
+
+  /* =====================================================
+     LOGIKA PEMUTAR AUDIO & MEDIA SESSION
+  ===================================================== */
+  let currentIndex = 0;
+  const audio = new Audio();
+  let isPlaying = false;
+
+  // Inisialisasi Tampilan Playlist di HTML
+  const playlistUI = document.getElementById('playlist-ui');
+  songs.forEach((song, index) => {
+    const item = document.createElement('div');
+    item.className = 'playlist-item' + (index === 0 ? ' active' : '');
+    item.innerText = `${index + 1}. ${song.judul}`;
+    item.onclick = () => loadAndPlay(index);
+    playlistUI.appendChild(item);
+  });
+
+  // Load & Pemutaran Lagu
+  function loadAndPlay(index) {
+    if (index < 0 || index >= songs.length) return;
+    
+    currentIndex = index;
+    const currentSong = songs[currentIndex];
+
+    audio.src = currentSong.file;
+    audio.play().then(() => {
+      isPlaying = true;
+      updateUI();
+      setupMediaSession(currentSong);
+    }).catch(err => {
+      console.error("Gagal memutar audio:", err);
+    });
+  }
+
+  function togglePlay() {
+    if (!audio.src) {
+      loadAndPlay(0);
+      return;
+    }
+
+    if (isPlaying) {
+      audio.pause();
+      isPlaying = false;
+    } else {
+      audio.play();
+      isPlaying = true;
+    }
+    updateUI();
+  }
+
+  function changeTrack(direction) {
+    if (direction === 'next') {
+      currentIndex = (currentIndex + 1) % songs.length;
+    } else {
+      currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+    }
+    loadAndPlay(currentIndex);
+  }
+
+  // Update Tampilan Tombol & Highlight Playlist
+  function updateUI() {
+    const currentSong = songs[currentIndex];
+    document.getElementById('song-title').innerText = currentSong.judul;
+    document.getElementById('song-artist').innerText = currentSong.artis;
+    document.getElementById('btn-play').innerText = isPlaying ? '⏸️' : '▶️';
+
+    const items = playlistUI.getElementsByClassName('playlist-item');
+    Array.from(items).forEach((item, idx) => {
+      if (idx === currentIndex) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
+  // INTEGRASI MEDIA SESSION (Kunci Utama Lockscreen & Background Sleep)
+  function setupMediaSession(song) {
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: song.judul,
+        artist: song.artis,
+        album: "SMPN 9 Sinjai Music",
+        artwork: [
+          { src: 'https://beita.smpn9sinjai.sch.id/favicon.ico', sizes: '96x96', type: 'image/x-icon' }
+        ]
+      });
+
+      // Pendaftaran Event Tombol di Lockscreen HP
+      navigator.mediaSession.setActionHandler('play', () => {
+        audio.play();
+        isPlaying = true;
+        updateUI();
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        audio.pause();
+        isPlaying = false;
+        updateUI();
+      });
+      navigator.mediaSession.setActionHandler('previoustrack', () => changeTrack('prev'));
+      navigator.mediaSession.setActionHandler('nexttrack', () => changeTrack('next'));
+    }
+  }
+
+  // OTOMATIS LANJUT KE LAGU BERIKUTNYA SAAT LAYAR MATI / SLEEP
+  audio.addEventListener('ended', () => {
+    changeTrack('next');
+  });
+</script>
+
+</body>
+</html>
