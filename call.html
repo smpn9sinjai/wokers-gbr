@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Broadcast WA Siswa</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: Arial;
+  background: #f4f6f9;
+}
+
+.container {
+  width: 90%;
+  margin: auto;
+}
+
+h2 {
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th, td {
+  padding: 7px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+th {
+  background: #007bff;
+  color: white;
+}
+
+tr:hover {
+  background: #f1f1f1;
+}
+
+.controls {
+  margin: 10px 0;
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+}
+#kelasSelect {
+  padding: 10px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+textarea {
+  width: 100%;
+  height: 200px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+
+<div class="controls">
+  <span>Pilih</span>
+  <select onchange="go()" id="kelasSelect">
+ 
+    <option value="9">9</option>
+	 
+	 
+  </select>
+  <!--  <option value="g">Guru</option>
+    <option value="8">8</option>
+    <option value="7">7</option>-->
+   
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>No</th>
+	   <th>Nama/NoHP</th>
+	    <th>Kelas</th>
+	  <th>Call</th>
+	 
+    </tr>
+  </thead>
+  <tbody id="tabel"></tbody>
+</table>
+
+<br>
+
+ 
+
+<script>
+  
+ let html = "";
+ 
+   
+go();
+function go() {
+    let tabel = document.getElementById("tabel");
+  tabel.innerHTML = ""; 
+  const select = document.getElementById("kelasSelect"); // ambil select
+
+  let url = "https://script.google.com/macros/s/AKfycbxjSJba4S5P2FiVSkgwv6lJFCt_88h75ampqhzvj6VYuTdZuf5TFrjwi9K1FcoAJVtTgQ/exec";
+
+  if (select.value) {
+    url += "?code=0&kelas=" + encodeURIComponent(select.value);
+  }
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      dataSiswa = data;
+      tampilkan();
+    })
+    .catch(err => console.error("Error:", err));
+}
+// tampilkan ke tabel
+ function tampilkan() {
+  let tabel = document.getElementById("tabel");
+  tabel.innerHTML = ""; // hapus data lama
+
+  let html = ""; // reset html
+
+  dataSiswa.forEach((s, i) => {
+  
+  
+ let nohp = s.nohp.replace(/\D/g, "");
+let wa = nohp.replace(/^0/, "62");
+
+let ncall = `
+  <a href="https://wa.me/${wa}" target="_blank">WA</a> |
+  <a href="tel:${nohp}">Telp</a>
+`;
+
+
+    html += `
+      <tr id="row${i}" data-nohp="${s.nohp}">
+        <td>${i+1}</td>
+        <td>${s.nama}<br>${s.nohp}</td>
+        
+        <td>${s.kelas || "-"}</td>
+        <td>${ncall}</td>
+       
+      </tr>
+    `;
+  });
+
+  tabel.innerHTML = html; // isi sekali saja (lebih cepat & benar)
+}
+ 
+
+</script>
+
+</body>
+</html>
